@@ -5,9 +5,18 @@ session = boto3.Session(profile_name='shotty')
 ec2 = session.resource('ec2')
 
 @click.command()
-def list_instances():
+@click.option('--listec2', default=None, help='List all EC2 in project: <thebestone>')
+def list_instances(listec2):
         "list EC2 instances"
-        for i in ec2.instances.all():
+        instance_s = []
+        if listec2:
+            filters_ = [{'Name': 'tag:Project', 'Values':[listec2]}]
+            instance_s = ec2.instances.filter(Filters=filters_)
+
+        else:
+            instance_s = ec2.instances.all()
+
+        for i in instance_s:
           print (', '.join((
                  i.id,
                  i.instance_type,
